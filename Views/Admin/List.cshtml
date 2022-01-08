@@ -1,0 +1,48 @@
+﻿@model List<MeetingManage.ViewModels.AdminListViewModel>
+
+@{
+    ViewData["Title"] = "UserList";
+}
+
+<h1>UserList</h1>
+
+<p>
+    <a asp-action="Create">新增使用者</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+               帳號
+            </th>
+            <th>
+               使用者名稱
+            </th>
+
+            <th>
+               權限
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Account)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Role)
+            </td>
+            <td>
+                @Html.ActionLink("編輯", "Edit", new {  id=item.Id  }) |           
+                @Html.ActionLink("刪除", "Delete", new {id=item.Id  })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
