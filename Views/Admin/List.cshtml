@@ -1,4 +1,4 @@
-﻿@model List<MeetingManage.ViewModels.AdminListViewModel>
+﻿@model List<MeetingManage.ViewModels.Admin.AdminListViewModel>
 
 @{
     ViewData["Title"] = "UserList";
@@ -13,36 +13,92 @@
     <thead>
         <tr>
             <th>
-               帳號
+                帳號
             </th>
             <th>
-               使用者名稱
+                使用者名稱
             </th>
-
             <th>
-               權限
+                權限
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
+        @foreach (var item in Model)
+        {
+            <tr>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.Account)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Role)
-            </td>
-            <td>
-                @Html.ActionLink("編輯", "Edit", new {  id=item.Id  }) |           
-                @Html.ActionLink("刪除", "Delete", new {id=item.Id  })
-            </td>
-        </tr>
-}
+                <td>
+                     <p id="UserAccount_@item.Id"> @Html.DisplayFor(modelItem => item.Account) </p>  
+                </td>
+                <td >
+                  @Html.DisplayFor(modelItem => item.UserName)                
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Role)
+                </td>
+                <td>
+                     <button type="button" class="btn btn-link" onclick="location.href='Edit?Id=@item.Id'">
+                        編輯
+                    </button>  
+                    |
+                    <button type="button" class="btn btn-link" data-toggle="modal"  onclick="ModalUserComfirm(@item.Id)">
+                        刪除
+                    </button>             
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<form asp-action="DeleteAction">
+<div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="DeleteModal" aria-hidden="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DeleteModalLabel">刪除使用者</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ModalOptin('hide')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="Modal_UserComfirm"></p>
+      </div>
+      <div class="modal-footer">
+        <input id="DeleteId" name="Id" hidden="hidden">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="ModalOptin('hide')">取消</button>
+        <button type="submit" class="btn btn-primary">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+<!--pagination-->
+@if (ViewBag.page.totalPage > 1)
+{
+    <div>
+        <!--上一頁-->
+        @if (ViewBag.page.currentPage > 1)
+        {
+            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage - 1)">
+                上一頁
+            </button>
+        }
+
+        <input type="number" c placeholder="" value="@ViewBag.page.currentPage" disabled>
+        <span>/@ViewBag.page.totalPage</span>
+
+        <!--下一頁-->
+        @if (ViewBag.page.totalPage > ViewBag.page.currentPage)
+        {
+            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage+ 1)">
+                下一頁
+            </button>
+        }
+    </div>
+}
+
+<script src="~/js/Admin/AdminList.js"></script>
+
+
+

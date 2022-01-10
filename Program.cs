@@ -11,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+#region 使整個網站預設都需要登入才能瀏覽(需安裝 Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation)
+builder.Services.AddMvc().AddRazorRuntimeCompilation();
+#endregion
 
 #region 使整個網站預設都需要登入才能瀏覽
 //builder.Services.AddMvc(config =>
@@ -43,8 +46,9 @@ builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddSingleton<JwtHelpers>();
-builder.Services.AddScoped<userHelpers>();
+builder.Services.AddScoped<UserHelpers>();
 builder.Services.AddScoped<TokenHelpers>();
+builder.Services.AddSingleton<PageHelpers>();
 
 var app = builder.Build();
 

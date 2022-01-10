@@ -8,8 +8,8 @@ namespace MeetingManage.Models
         [Key]
         [Column("id")]
         public long Id { get; set; }
-        [Column("user_id")]
-        public long userId { get; set; }
+        [Column("user_Account")]
+        public string  userAccount { get; set; }
         [Column("Room")]
 
         public string Room { get; set; }
@@ -23,8 +23,6 @@ namespace MeetingManage.Models
         public string Remarks { get; set; }
         [Column("Account")]
         public string Account { get; set; }
-        [ForeignKey(nameof(userId))]
-        [InverseProperty("Meetings")]
-        public virtual User User { get; set; }
+
     }
 }

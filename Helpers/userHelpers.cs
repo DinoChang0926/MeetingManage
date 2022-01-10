@@ -3,11 +3,11 @@ using System.Text;
 
 namespace MeetingManage.Helpers
 {
-    public class userHelpers
+    public class UserHelpers
     {
         private readonly IConfiguration _configuration;
 
-        public userHelpers(IConfiguration configuration)
+        public UserHelpers(IConfiguration configuration)
         {
             _configuration = configuration;
         }

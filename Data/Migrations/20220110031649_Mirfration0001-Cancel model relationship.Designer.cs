@@ -3,6 +3,7 @@ using MeetingManage.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingManage.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220110031649_Mirfration0001-Cancel model relationship")]
+    partial class Mirfration0001Cancelmodelrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,13 +56,11 @@ namespace MeetingManage.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("STime");
 
-                    b.Property<long>("userId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
+                    b.Property<string>("userAccount")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("user_Account");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("userId");
 
                     b.ToTable("Meetings");
                 });
@@ -93,22 +93,6 @@ namespace MeetingManage.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserData");
-                });
-
-            modelBuilder.Entity("MeetingManage.Models.Meeting", b =>
-                {
-                    b.HasOne("MeetingManage.Models.User", "User")
-                        .WithMany("Meetings")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MeetingManage.Models.User", b =>
-                {
-                    b.Navigation("Meetings");
                 });
 #pragma warning restore 612, 618
         }

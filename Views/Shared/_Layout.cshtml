@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MeetingManage.styles.css" asp-append-version="true" />
+    <script type="text/javascript" src="~/js/jquery.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
 </head>
 <body>
     <header>
@@ -25,7 +29,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (User.Identity.IsAuthenticated)
-                        {                            
+                        {
                             @if (byte.TryParse(User.Claims.FirstOrDefault().Value, out byte Role))
                             {
                                 @if ((RoleType)Role == RoleType.Admin || (RoleType)Role == RoleType.UserManage)
@@ -54,8 +58,8 @@
             &copy; 2022 - MeetingManage - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

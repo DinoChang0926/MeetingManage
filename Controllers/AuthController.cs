@@ -17,12 +17,12 @@ namespace MeetingManage.Controllers
     {
         private readonly ApplicationDbContext _ApplicationDB;
         private readonly JwtHelpers _jwt;
-        private readonly userHelpers _user;
+        private readonly UserHelpers _user;
         private readonly IConfiguration _configuration;
         public AuthController(ApplicationDbContext ApplicationDB, 
                               JwtHelpers jwt, 
                               IConfiguration configuration, 
-                              userHelpers user)
+                              UserHelpers user)
         {
             _ApplicationDB = ApplicationDB;
             _configuration = configuration;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace MeetingManage.ViewModels
+namespace MeetingManage.ViewModels.Admin
 {
     public class AdminListViewModel
     {

@@ -17,7 +17,5 @@ namespace MeetingManage.Models
         public string Password { get; set; }
         [Column("Role")]
         public byte Role { get; set; }
-        [InverseProperty(nameof(Meeting.User))]
-        public virtual ICollection<Meeting> Meetings { get; set; }
     }
 }

@@ -1,0 +1,51 @@
+﻿@model MeetingManage.ViewModels.Admin.AdminEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>AdminCreateViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditAction">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+             <input asp-for="Id" hidden="hidden" class="form-control" />
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VerPassword" class="control-label"></label>
+                <input asp-for="VerPassword" class="form-control" type="password" />
+                <span asp-validation-for="VerPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Role" class="control-label"></label>  
+                <select  class="form-control" id="RoleSelect" name="Role">
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="List">Back to List</a>
+</div>
+
+@section Scripts {
+    <script src="~/js/Admin/AdminCreate.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

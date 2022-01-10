@@ -18,13 +18,17 @@ namespace MeetingManage.CustomAuthorization
                 string path = $"~/Auth/Login";
                 context.Result = new RedirectResult(path);
             }
-            string CookieRole = context.HttpContext.User.Claims.FirstOrDefault().Value;
-            if (!(userAuthorization(token, CookieRole)))
-            {            
-                // 判斷用戶權限        
-                string path = $"~/Auth/unauthorized";
-                context.Result = new RedirectResult(path);
+            else
+            {
+                string CookieRole = context.HttpContext.User.Claims.FirstOrDefault().Value;
+                if (!(userAuthorization(token, CookieRole)))
+                {
+                    // 判斷用戶權限        
+                    string path = $"~/Auth/unauthorized";
+                    context.Result = new RedirectResult(path);
+                }
             }
+
         }
         private bool userAuthorization(string token,string cookieUserRole)
         {

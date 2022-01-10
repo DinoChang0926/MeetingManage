@@ -87,7 +87,7 @@ namespace MeetingManage.Controllers
         [AllowAnonymous]
         public JsonResult MeetingDataToJson(RoomObject Obj) //處理給Google的Json數據
         {
-            IQueryable<Meeting> MData = _ApplicationDB.Meetings.Include(a=>a.User).Where(x => x.STime.Contains(Obj.SearchDate)).AsQueryable().OrderBy(x => x.Room);
+            IQueryable<Meeting> MData = _ApplicationDB.Meetings.Where(x => x.STime.Contains(Obj.SearchDate)).AsQueryable().OrderBy(x => x.Room);
             if (MData.Count() == 0)
                 return this.Json("");
             Graph graph = new Graph
@@ -114,7 +114,7 @@ namespace MeetingManage.Controllers
                 cSetProp[0].v = mt.Room.Trim(' ');
                 cSetList.Add(cSetProp[0]);
                 cSetProp[1] = new DataPoint();
-                cSetProp[1].v =/*"申請事由："+ mt.Event.Trim(' ')+*/" 申請人：" + mt.User.UserName.Trim(' ');
+                cSetProp[1].v =/*"申請事由："+ mt.Event.Trim(' ')+*/" 申請人：" + mt.Account.Trim(' ');
                 cSetList.Add(cSetProp[1]);
                 cSetProp[2] = new DataPoint();
                 cSetProp[2].v = Timehandle(mt.STime);
