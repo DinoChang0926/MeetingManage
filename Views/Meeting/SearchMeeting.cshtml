@@ -1,0 +1,49 @@
+﻿@model MeetingManage.ViewModels.RoomObject
+
+@{
+    ViewData["Title"] = "SearchMeeting";
+}
+
+<h1>會議查詢</h1>
+<form asp-action="SearchMeeting">
+    <div>
+        <label asp-for="SearchDate"></label>
+        <input asp-for="SearchDate" type="date">
+        <span asp-validation-for="SearchDate" class="text-danger"></span>
+        <button type="submit" class="btn btn-primary">查詢</button>
+    </div>
+</form>
+
+<div id="MeetingTable" style="height: 50%;"></div>
+
+
+<script type="text/javascript" src="~/js/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load("current", { packages: ["timeline"] });
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+            let s = '@Model.STime';
+            let e = '@Model.ETime';
+            let st = Date.parse(s);
+            let et = Date.parse(e);
+            let container = document.getElementById('MeetingTable');
+            let chart = new google.visualization.Timeline(container);
+            let jsonData = $.ajax({
+                url: "Meeting/MeetingDataToJson?SearchDate=@Model.SearchDate",
+                dataType: "json",
+                async: false,
+                data: { ct: '' }
+            }).responseText;
+            /* alert(jsonData);*/
+            let dataTable = new google.visualization.DataTable(jsonData);
+        let options = {
+                height: 1024,
+                format: 'HH:mm',
+                hAxis: {
+                    minValue: new Date(st),
+                    maxValue: new Date(et)
+                },
+            };
+            chart.draw(dataTable, options);
+    }
+</script>

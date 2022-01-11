@@ -1,10 +1,4 @@
-﻿
-
-function changePage(currentPage) {
-    window.location = "List?" + "currentPage=" + currentPage;
-}
-
-function ModalUserComfirm(UserId) {
+﻿function ModalComfirm(UserId) {
     let userAccountId = "#UserAccount_" + UserId;
     let userAccount = $(userAccountId).text();  
     ModalOptin("show");
@@ -12,9 +6,7 @@ function ModalUserComfirm(UserId) {
     $("#Modal_UserComfirm").text("確定要刪除，帳號：" + userAccount + " 嗎?");
 }
 
-function ModalOptin(option) {
-    $('.modal').modal(option);
-}
+
 
 
 

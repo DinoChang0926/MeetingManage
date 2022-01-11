@@ -16,13 +16,13 @@ builder.Services.AddMvc().AddRazorRuntimeCompilation();
 #endregion
 
 #region 使整個網站預設都需要登入才能瀏覽
-//builder.Services.AddMvc(config =>
-//{
-//    var policy = new AuthorizationPolicyBuilder()
-//                     .RequireAuthenticatedUser()
-//                     .Build();
-//    config.Filters.Add(new AuthorizeFilter(policy));
-//});
+builder.Services.AddMvc(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
 #endregion
 
 #region Migration
@@ -41,8 +41,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });
 builder.Services.AddHttpContextAccessor();
 #endregion
-
-
 
 
 builder.Services.AddSingleton<JwtHelpers>();
@@ -72,6 +70,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Meeting}/{action=SearchMeeting}/{id?}");
 
 app.Run();

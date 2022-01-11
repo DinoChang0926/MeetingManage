@@ -1,10 +1,10 @@
 ﻿@model List<MeetingManage.ViewModels.Admin.AdminListViewModel>
 
 @{
-    ViewData["Title"] = "UserList";
+    ViewData["Title"] = "使用者列表";
 }
 
-<h1>UserList</h1>
+<h1>使用者列表</h1>
 
 <p>
     <a asp-action="Create">新增使用者</a>
@@ -43,7 +43,7 @@
                         編輯
                     </button>  
                     |
-                    <button type="button" class="btn btn-link" data-toggle="modal"  onclick="ModalUserComfirm(@item.Id)">
+                    <button type="button" class="btn btn-link" data-toggle="modal"  onclick="ModalComfirm(@item.Id)">
                         刪除
                     </button>             
                 </td>
@@ -80,7 +80,7 @@
         <!--上一頁-->
         @if (ViewBag.page.currentPage > 1)
         {
-            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage - 1)">
+            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage - 1,'')">
                 上一頁
             </button>
         }
@@ -91,7 +91,7 @@
         <!--下一頁-->
         @if (ViewBag.page.totalPage > ViewBag.page.currentPage)
         {
-            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage+ 1)">
+            <button type="button" class="btn btn-link" onclick="changePage(@ViewBag.page.currentPage+ 1,'')">
                 下一頁
             </button>
         }

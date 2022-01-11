@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MeetingManage.ViewModels
+namespace MeetingManage.ViewModels.Meeting
 {
     public class MeetingsViewModel
     {

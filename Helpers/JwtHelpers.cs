@@ -26,7 +26,7 @@ namespace MeetingManage.Helpers
 
             // 在 RFC 7519 規格中(Section#4)，總共定義了 7 個預設的 Claims，我們應該只用的到兩種！
             //claims.Add(new Claim(JwtRegisteredClaimNames.Iss, issuer));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.UserName)); // User.Identity.Name
+            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Account)); // User.Identity.Name
             //claims.Add(new Claim(JwtRegisteredClaimNames.Aud, "The Audience"));
             //claims.Add(new Claim(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds().ToString()));
             //claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())); // 必須為數字

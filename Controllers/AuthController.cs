@@ -41,12 +41,12 @@ namespace MeetingManage.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    User user = _ApplicationDB.Users.FirstOrDefault(a => a.UserName == request.UserName);                
+                    User user = _ApplicationDB.Users.FirstOrDefault(a => a.Account == request.Account);                
                     if (user != null && _user.VerPassword(user.Password,request.Password))
                     {                       
                         var claims = new List<Claim>
                             {
-                                //new Claim(ClaimTypes.Name, "UerName"),
+                               // new Claim(ClaimTypes.Name, user.Account),
                                 new Claim(ClaimTypes.Role, user.Role.ToString())
                             };
                         var claimsIdentity = new ClaimsIdentity(
@@ -66,10 +66,8 @@ namespace MeetingManage.Controllers
                     }
                     else
                     {
-                        TempData["ErrorMsg"] = "帳號或密碼錯誤";
+                        TempData["message"] = "帳號或密碼錯誤";
                     }
-
-
                 }
             }
             catch (Exception ex)
@@ -84,28 +82,33 @@ namespace MeetingManage.Controllers
             await HttpContext.SignOutAsync();
             return RedirectToAction("Login");
         }
-
         public IActionResult Register()
         {
             return View();
         }
-
-
         [HttpPost]
         public IActionResult RegisterAction(RegisterViewModel register)
         {
+            string message = null;
             try
             {
-                if (ModelState.IsValid)
+                int AdminValue = _ApplicationDB.Users.Where(a => a.Role == (byte)RoleType.Admin).Count();
+                if (ModelState.IsValid && AdminValue == 0)
                 {
                     _ApplicationDB.Users.Add(new User
                     {
                         Password = _user.SetPassword(register.Password),
                         Account = register.UserName,
                         UserName = register.UserName,
-                        Role = 0
+                        Role = 99
                     });
                     _ApplicationDB.SaveChanges();
+                    message = "註冊成功";
+                }
+                else
+                {
+                    message= "註冊失敗，請查閱系統訊息";
+                    Console.WriteLine("{3}  Regist fail，admin number of admin:{0}，Model Valid:{1}", AdminValue, ModelState.IsValid,DateTime.Now);
                 }
 
             }
@@ -113,15 +116,12 @@ namespace MeetingManage.Controllers
             {
                 return View(ex.Message);
             }
-
+            TempData["message"] = message;
             return RedirectToAction("Login");
         }
         public IActionResult unauthorized()
         {
             return View();
         }
-
-
-
     }
 }

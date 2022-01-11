@@ -1,26 +1,34 @@
-﻿using MeetingManage.Data;
+﻿using MeetingManage.CustomAuthorization;
+using MeetingManage.Data;
 using MeetingManage.Helpers;
 using MeetingManage.Models;
 using MeetingManage.ViewModels;
+using MeetingManage.ViewModels.Meeting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using static MeetingManage.CustomAuthorization.Globals;
 using static MeetingManage.ViewModels.RoomDataTable;
 
 namespace MeetingManage.Controllers
 {
+    [UserAuthorization]
     public class MeetingController : Controller
     {
+        private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _ApplicationDB;
-        private readonly JwtHelpers _jwt;
-        public MeetingController(ApplicationDbContext ApplicationDB, JwtHelpers jwt)
+        private readonly TokenHelpers _tokenHelper;
+        private readonly PageHelpers _pageHelper;
+        public MeetingController(ApplicationDbContext ApplicationDB,
+                                 IConfiguration configuration,
+                                 PageHelpers pageHelper,
+                                 TokenHelpers tokenHelps)
         {
             _ApplicationDB = ApplicationDB;
-            _jwt = jwt;           
+            _configuration = configuration;
+            _tokenHelper = tokenHelps;
+            _pageHelper = pageHelper;
         }
-
-
-        readonly List<DrownItem> MR = new List<DrownItem>
+        readonly List<DrownItem> _MR = new List<DrownItem>
         {
                 new DrownItem("第一會議室","第一會議室"),
                 new DrownItem("第二會議室","第二會議室"),
@@ -28,69 +36,193 @@ namespace MeetingManage.Controllers
                 new DrownItem("第四會議室","第四會議室"),
                 new DrownItem("第五會議室","第五會議室")
         };
-        readonly List<DrownItem> LV = new List<DrownItem>
-        {
-                new DrownItem("管理者","admin"),
-                new DrownItem("一般使用者","user")
-        };
-        private readonly int lim = 15; //會議室使用最低間隔時間    
-      
-     
-  
-        public ActionResult MeetingList(string SearchDate) //會議列表管理
-        {
-            //if (SearchDate == null)
-            //{
-            //    SearchDate = DateTime.Now.ToString("yyyy/MM/dd");
-            //}
-            //TempData["date"] = SearchDate;
-            //IQueryable<Meeting> Mdata;
-            //if (CheckLevel() == "admin")
-            //{
-            //    Mdata = _db.MeetingData.Where(x => x.STime.Contains(SearchDate)).AsQueryable().OrderBy(x => x.Room);
-            //}
-            //else
-            //{
-            //    Mdata = _db.MeetingData.Where(x => x.STime.Contains(SearchDate) && x.Account == account).AsQueryable().OrderBy(x => x.Room);  //一般使用者只查找自己帳號申請過的會議
-            //}
-            return View();
-        }
 
-        public ActionResult MeetingEdit(string SID) //會議編輯
-        {
-                return View();
-        }
-
-        public ActionResult MeetingDelete(long Id)  //會議刪除
-        {
-           
-                return View();
-            
-          
-        }
-       
-       
         [AllowAnonymous]
-        public ActionResult SearchMeeting(string SearchDate)
+        public IActionResult SearchMeeting(string SearchDate)
         {
-           
+
             RoomObject obj = new RoomObject();
             if (SearchDate == null)
-                obj.SearchDate = DateTime.Now.ToString("yyyy/MM/dd");  //搜尋日期為空值時設為當天                  
+                obj.SearchDate = DateTime.Now.ToString("yyyy-MM-dd");  //搜尋日期為空值時設為當天                  
             else
                 obj.SearchDate = SearchDate;
-            obj.STime = obj.SearchDate + " 08:00"; //設定Google Chart的X軸起始時間
-            obj.ETime = obj.SearchDate + " 18:00";  //設定Google Chart的X軸結束時間
+            obj.STime = obj.SearchDate +" "+ _configuration.GetValue<string>("MeetingObject:onDuty"); //設定Google Chart的X軸起始時間
+            obj.ETime = obj.SearchDate +" "+ _configuration.GetValue<string>("MeetingObject:offDuty");  //設定Google Chart的X軸結束時間
             return View(obj);
         }
 
-        [AllowAnonymous]
-        public JsonResult MeetingDataToJson(RoomObject Obj) //處理給Google的Json數據
+
+        public IActionResult List(string SearchDate,int? CurrentPage) //會議列表管理
         {
-            IQueryable<Meeting> MData = _ApplicationDB.Meetings.Where(x => x.STime.Contains(Obj.SearchDate)).AsQueryable().OrderBy(x => x.Room);
+            if (SearchDate == null)
+            {
+                SearchDate = DateTime.Now.ToString("yyyy-MM-dd");
+            }
+            ViewBag.SearchDate = SearchDate;
+            var r = _pageHelper.GetPage(GetMeeting(SearchDate), CurrentPage);
+            ViewBag.Page = r.Item2;
+            return View(r.Item1);
+        }
+        public IActionResult Create() 
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(MeetingsViewModel req)
+        {
+            string token = HttpContext.Request.Cookies["token"];
+            string userAccount = _tokenHelper.GetUser(token);
+            try
+            {               
+                var result = MeetingCheck(req);             
+                if (result.Item1)
+                {                    
+                    _ApplicationDB.Meetings.Add(new Meeting { 
+                        Account = userAccount,
+                        Applicant=req.Applicant,
+                        STime= req.Date + " " + req.STime,
+                        ETime= req.Date + " " + req.ETime,
+                        Remarks=req.Remarks, 
+                        Event   =req.Event,
+                        Room    =req.Room,
+                    });
+                    _ApplicationDB.SaveChanges();
+                    TempData["message"] = "新增成功";
+                }
+                else
+                {
+                    TempData["message"] = result.Item2;
+                    return View(req);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["message"] = "異常新增錯誤，請查閱系統紀錄";
+                Console.WriteLine("{0} meeting create fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                return View(req);
+            }
+            return RedirectToAction("List");
+        }
+        public IActionResult Edit(long Id) 
+        {     
+            try
+            {
+                Meeting meeting = _ApplicationDB.Meetings.FirstOrDefault(a => a.Id == Id);
+                MeetingsViewModel viewModel = new MeetingsViewModel { 
+                    Account =meeting.Account,
+                    Date = DateTime.Parse(meeting.STime).ToString("yyyy-MM-dd"),
+                    STime = DateTime.Parse(meeting.STime).ToString("HH:mm"),
+                    ETime = DateTime.Parse(meeting.ETime).ToString("HH:mm"),
+                    Applicant = meeting.Applicant,
+                    Event =meeting.Event,
+                    Remarks =meeting.Remarks,
+                    Room =meeting.Room,
+                    Id = Id,
+                };
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                string token = HttpContext.Request.Cookies["token"];
+                string userAccount = _tokenHelper.GetUser(token);
+                TempData["message"] = "錯誤請求";
+                Console.WriteLine("{0} meeting edit fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                return RedirectToAction("List");
+            }  
+               
+        }
+        [HttpPost]
+        public IActionResult Edit(MeetingsViewModel req)
+        {
+            string token = HttpContext.Request.Cookies["token"];
+            string userAccount = _tokenHelper.GetUser(token);
+            try
+            {
+                var result = MeetingCheck(req);
+                if (result.Item1)
+                {
+                    _ApplicationDB.Meetings.Update(new Meeting
+                    {
+                        Account = userAccount,
+                        Applicant = req.Applicant,
+                        STime = req.Date + " " + req.STime,
+                        ETime = req.Date + " " + req.ETime,
+                        Remarks = req.Remarks,
+                        Event = req.Event,
+                        Room = req.Room,
+                        Id=req.Id,
+                    });
+                    _ApplicationDB.SaveChanges();
+                    TempData["message"] = "更新成功";
+                }
+                else
+                {
+                    TempData["message"] = result.Item2;
+                    return View(req);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["message"] = "異常編輯錯誤，請查閱系統紀錄";
+                Console.WriteLine("{0} meeting edit fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                return View(req);
+            }
+            return RedirectToAction("List");        
+        }
+        [HttpPost]
+        public IActionResult Delete(long Id)
+        {           
+            try
+            {
+                     Meeting meeting = _ApplicationDB.Meetings.FirstOrDefault(a => a.Id == Id);
+                    _ApplicationDB.Meetings.Remove(meeting);
+                    _ApplicationDB.SaveChanges();
+                    TempData["message"] = "刪除成功";
+            }
+            catch (Exception ex)
+            {
+                string token = HttpContext.Request.Cookies["token"];
+                string userAccount = _tokenHelper.GetUser(token);
+                TempData["message"] = "異常刪除錯誤，請查閱系統紀錄";
+                Console.WriteLine("{0} meeting delete fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);             
+            }
+            return RedirectToAction("List");
+        }
+
+        #region Helper
+        public List<DrownItem> GetRoom()
+        {
+            return _MR;
+        }
+        private List<Meeting> GetMeeting(string SearchDate)
+        {
+            List<Meeting> Meetings = _ApplicationDB.Meetings.Where(a => a.STime.Contains(SearchDate)).ToList();
+            string token = HttpContext.Request.Cookies["token"];
+            string userRole = _tokenHelper.GetUserRole(token);
+            string userAccount = _tokenHelper.GetUser(token);
+            if (byte.TryParse(userRole, out byte Role))
+            {
+                switch ((RoleType)Role)
+                {
+                    case RoleType.Admin:
+                        break;
+
+                    default:
+                        Meetings = Meetings.Where(a => a.Account.Equals(userAccount)).ToList();
+                        break;
+                }
+            }
+            return Meetings;
+        }
+
+        [AllowAnonymous]
+        public JsonResult MeetingDataToJson(string SearchDate) //處理給Google的Json數據
+        {
+            List<Meeting> MData = _ApplicationDB.Meetings.Where(x => x.STime.Contains(SearchDate)).OrderBy(x => x.Room).ToList();
+            Graph graph = null;
             if (MData.Count() == 0)
-                return this.Json("");
-            Graph graph = new Graph
+                return this.Json(graph);
+            graph = new Graph
             {
                 cols = new List<Col>
                 {
@@ -114,7 +246,7 @@ namespace MeetingManage.Controllers
                 cSetProp[0].v = mt.Room.Trim(' ');
                 cSetList.Add(cSetProp[0]);
                 cSetProp[1] = new DataPoint();
-                cSetProp[1].v =/*"申請事由："+ mt.Event.Trim(' ')+*/" 申請人：" + mt.Account.Trim(' ');
+                cSetProp[1].v =/*"申請事由："+ mt.Event.Trim(' ')+*/" 申請人：" + mt.Applicant.Trim(' ');
                 cSetList.Add(cSetProp[1]);
                 cSetProp[2] = new DataPoint();
                 cSetProp[2].v = Timehandle(mt.STime);
@@ -126,27 +258,28 @@ namespace MeetingManage.Controllers
                 rows.Add(cSetRow);
             }
             graph.rows = rows;
-
             //return this.Json(graph, JsonRequestBehavior.AllowGet);
-            return this.Json(graph);
+            return Json(graph);
         }
-        public string MeetingCheck(MeetingsViewModel Meeting, long Id) //確認會議是否符合規則
+        private (bool, string) MeetingCheck(MeetingsViewModel Meeting) //確認會議是否符合規則
         {
+            int lim= _configuration.GetValue<int>("MeetingObject:lim"); //會議室使用最低間隔時間
+            bool result = false;                                                                        
             if (Meeting == null)//確認會議室時間輸入無誤
             {
-                return "資料輸入有誤";
+                return (result,"資料輸入有誤");
             }
             DateTime ts = DateTime.Parse(Meeting.Date + " " + Meeting.STime); //申請起始時間
             DateTime te = DateTime.Parse(Meeting.Date + " " + Meeting.ETime); //申請結束時間
             if (ts == te || ts > te)//確認會議室時間輸入無誤
             {
-                return "時間輸入有誤";
+                return (result, "時間輸入有誤");
             }
             else if (DateTime.Parse(Meeting.Date + " " + Meeting.STime) < DateTime.Now)
             {
-                return "不可申請過去的時間";
+                return (result, "不可申請過去的時間");
             }
-            IQueryable<Meeting> Mdata = _ApplicationDB.Meetings.Where(x => x.STime.Contains(Meeting.Date) && x.Room == Meeting.Room && x.Id != Id);
+            IQueryable<Meeting> Mdata = _ApplicationDB.Meetings.Where(x => x.STime.Contains(Meeting.Date) && x.Room == Meeting.Room && x.Id != Meeting.Id);
             foreach (var m in Mdata)
             {
                 DateTime TS = DateTime.Parse(m.STime); //已申請起始時間
@@ -154,16 +287,15 @@ namespace MeetingManage.Controllers
                 TimeSpan ResultSS = ts.Subtract(TS).Duration();//比對時間間隔
                 TimeSpan ResultSE = ts.Subtract(TE).Duration();
                 TimeSpan ResultES = te.Subtract(TS).Duration();
-                if (ResultSS.TotalMinutes <= lim || ResultSE.TotalMinutes < lim || ResultES.TotalMinutes < lim) //確認不低於最低間隔時間
+                if ((ResultSS.TotalMinutes <= lim || ResultSE.TotalMinutes < lim || ResultES.TotalMinutes < lim) ||  //確認不低於最低間隔時間
+                    (ts < TS && te > TS || ts > TS && ts < TE))                                                      //確認會議室不重複使用
                 {
-                    return "會議室已有人使用";
+                    return (result, "會議室已有人使用");
                 }
-                else if (ts < TS && te > TS || ts > TS && ts < TE)  //確認時間是否重複
-                {
-                    return "會議室已有人使用";
-                }
+           
             }
-            return "OK";
+            result = true;
+            return (result,"");
         }
         public string Timehandle(string s) //處理給Google 圖表的日期字串
         {
@@ -175,7 +307,7 @@ namespace MeetingManage.Controllers
             {
                 DateTime[i] = SplitSpace[i];
             }
-            Date = DateTime[0].Split('/');
+            Date = DateTime[0].Split('-');
             Time = DateTime[1].Split(':');
             Date[1] = (int.Parse(Date[1]) - 1).ToString(); //Google Chart的月份需比實際-1才會正確
             foreach (var r in Date)
@@ -189,9 +321,6 @@ namespace MeetingManage.Controllers
             result = result.Remove(result.Length - 1, 1) + ")";
             return result;
         }
-
-
-
-
     }
+    #endregion
 }

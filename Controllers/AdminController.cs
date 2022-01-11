@@ -30,7 +30,7 @@ namespace MeetingManage.Controllers
             _pageHelper = pageHelper;
             _userHelper = userHelper;
         }
-        public ActionResult List(int? CurrentPage) 
+        public IActionResult List(int? CurrentPage) 
         {
             List<AdminListViewModel> users = GetUsers().Select(x => new AdminListViewModel
                                                 {
@@ -43,12 +43,12 @@ namespace MeetingManage.Controllers
             ViewBag.Page = r.Item2;
             return View(r.Item1);
         }
-        public ActionResult Create() 
+        public IActionResult Create() 
         {
             return View();
         }
         [HttpPost]
-        public IActionResult CreateAction(AdminCreateViewModel req)
+        public IActionResult Create(AdminCreateViewModel req)
         {
             string message = "";
             try
@@ -66,19 +66,24 @@ namespace MeetingManage.Controllers
                     _ApplicationDB.SaveChanges();
                 }
                 else
+                {
                     message = "新增失敗，帳號重複!!";
+                    return View(req);
+                }
+                    
             } 
             catch (Exception ex)
             {
                 Console.WriteLine("{0} account:{3} create fail:{1}", DateTime.Now,ex.Message,req.Account);
                 message = "新增失敗，請查閱系統紀錄!!";
+                return View(req);
             }                
 
             TempData["message"] = message;   
             return RedirectToAction("List");
         }
 
-        public ActionResult Edit(long Id)
+        public IActionResult Edit(long Id)
         {
             User user = _ApplicationDB.Users.FirstOrDefault(a => a.Id == Id);
             AdminEditViewModel u = new AdminEditViewModel()
@@ -90,7 +95,7 @@ namespace MeetingManage.Controllers
             return View(u);
         }
         [HttpPost]
-        public ActionResult EditAction(AdminEditViewModel req)
+        public IActionResult Edit(AdminEditViewModel req)
         {
             string message = "";
             try
@@ -101,17 +106,19 @@ namespace MeetingManage.Controllers
                 user.Password = req.Password != null ? req.Password : user.Password;
                 _ApplicationDB.Users.Update(user);
                 _ApplicationDB.SaveChanges();
+                message = "更新成功";
             }
             catch (Exception ex)
             {
                 Console.WriteLine("{0} account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, req.Id);
                 message = "修改失敗，請查閱系統紀錄!!";
+                return View(req);
             }
             TempData["message"] = message;
             return RedirectToAction("List");
         }
         [HttpPost]
-        public ActionResult DeleteAction(long Id)
+        public IActionResult DeleteAction(long Id)
         {
             string message = "";
             try
@@ -157,6 +164,14 @@ namespace MeetingManage.Controllers
         public List<RoleTypeSelect> GetRole()
         {
             List<RoleType> roleTypes = Globals.ToList<RoleType>();
+            string token = HttpContext.Request.Cookies["token"];
+            string userRole = _tokenHelper.GetUserRole(token);
+            if (byte.TryParse(userRole, out byte Role))
+            {
+                if((RoleType)Role != RoleType.Admin)
+                    roleTypes.Remove(RoleType.Admin);
+            }
+            
             List<RoleTypeSelect> roles = new List<RoleTypeSelect> { };
             foreach(var x in roleTypes)
             {

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingManage.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220110031649_Mirfration0001-Cancel model relationship")]
-    partial class Mirfration0001Cancelmodelrelationship
+    [Migration("20220110055919_Mirfration0001")]
+    partial class Mirfration0001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,6 +36,10 @@ namespace MeetingManage.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Account");
 
+                    b.Property<string>("Applicant")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Applicant");
+
                     b.Property<string>("ETime")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ETime");
@@ -55,10 +59,6 @@ namespace MeetingManage.Migrations
                     b.Property<string>("STime")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("STime");
-
-                    b.Property<string>("userAccount")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("user_Account");
 
                     b.HasKey("Id");
 

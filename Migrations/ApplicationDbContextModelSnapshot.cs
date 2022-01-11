@@ -34,6 +34,10 @@ namespace MeetingManage.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Account");
 
+                    b.Property<string>("Applicant")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Applicant");
+
                     b.Property<string>("ETime")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ETime");
@@ -53,10 +57,6 @@ namespace MeetingManage.Migrations
                     b.Property<string>("STime")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("STime");
-
-                    b.Property<string>("userAccount")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("user_Account");
 
                     b.HasKey("Id");
 

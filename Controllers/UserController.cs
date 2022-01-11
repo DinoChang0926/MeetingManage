@@ -8,9 +8,8 @@ namespace MeetingManage.Controllers
     [tokenAuthorization]
     public class UserController : Controller
     {
-        public ActionResult PasswordEdit() //密碼編輯
-        {
-          
+        public IActionResult PasswordEdit() //密碼編輯
+        {          
             return View();
         }  
 
