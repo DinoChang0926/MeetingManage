@@ -3,15 +3,13 @@
 namespace MeetingManage.Helpers
 {
     public class TokenHelpers
-    {
-        private readonly IConfiguration _configuration;
+    {      
         private readonly IHttpContextAccessor _httpContext;
         public TokenHelpers()
         {
         }
-        public TokenHelpers(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
-        {
-               _configuration = configuration;
+        public TokenHelpers(IHttpContextAccessor httpContextAccessor)
+        {            
                _httpContext = httpContextAccessor;
         }
         public string GetUser(string token = null) 
