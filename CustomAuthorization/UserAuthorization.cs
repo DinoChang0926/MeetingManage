@@ -32,12 +32,10 @@ namespace MeetingManage.CustomAuthorization
         }
         private bool userAuthorization(string token,string cookieUserRole)
         {
-            List<RoleType> roles = new List<RoleType> { RoleType.Admin,RoleType.UserManage};   
             TokenHelpers tokenHelpers = new TokenHelpers();
             byte cUserRole;
             return byte.TryParse(cookieUserRole, out cUserRole) &&
-                   tokenHelpers.GetUserRole(token).Equals(cookieUserRole) && 
-                   roles.Contains((RoleType)cUserRole) ? true : false;
+                   tokenHelpers.GetUserRole(token).Equals(cookieUserRole) ? true : false;
         }
     }
 }
