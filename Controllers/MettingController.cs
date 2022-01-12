@@ -98,7 +98,7 @@ namespace MeetingManage.Controllers
             catch (Exception ex)
             {
                 TempData["message"] = "異常新增錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting create fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting create fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
                 return View(req);
             }
             return RedirectToAction("List");
@@ -126,7 +126,7 @@ namespace MeetingManage.Controllers
                 string token = HttpContext.Request.Cookies["token"];
                 string userAccount = _tokenHelper.GetUser(token);
                 TempData["message"] = "錯誤請求";
-                Console.WriteLine("{0} meeting edit fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
                 return RedirectToAction("List");
             }  
                
@@ -164,7 +164,7 @@ namespace MeetingManage.Controllers
             catch (Exception ex)
             {
                 TempData["message"] = "異常編輯錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting edit fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
                 return View(req);
             }
             return RedirectToAction("List");        
@@ -184,7 +184,7 @@ namespace MeetingManage.Controllers
                 string token = HttpContext.Request.Cookies["token"];
                 string userAccount = _tokenHelper.GetUser(token);
                 TempData["message"] = "異常刪除錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting delete fail: account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, userAccount);             
+                Console.WriteLine("{0} meeting delete fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);             
             }
             return RedirectToAction("List");
         }

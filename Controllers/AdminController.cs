@@ -74,7 +74,7 @@ namespace MeetingManage.Controllers
             } 
             catch (Exception ex)
             {
-                Console.WriteLine("{0} account:{3} create fail:{1}", DateTime.Now,ex.Message,req.Account);
+                Console.WriteLine("{0} account:{2} create fail:{1}", DateTime.Now,ex.Message,req.Account);
                 message = "新增失敗，請查閱系統紀錄!!";
                 return View(req);
             }                
@@ -110,7 +110,7 @@ namespace MeetingManage.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0} account_id:{3} edit fail:{1}", DateTime.Now, ex.Message, req.Id);
+                Console.WriteLine("{0} account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, req.Id);
                 message = "修改失敗，請查閱系統紀錄!!";
                 return View(req);
             }
@@ -130,7 +130,7 @@ namespace MeetingManage.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0} account_id:{3} delete fail:{1}", DateTime.Now, ex.Message, Id);
+                Console.WriteLine("{0} account_id:{2} delete fail:{1}", DateTime.Now, ex.Message, Id);
                 message = "刪除失敗，請查閱系統紀錄!!";
             }
             TempData["message"] = message;        
