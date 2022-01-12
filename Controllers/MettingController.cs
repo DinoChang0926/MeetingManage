@@ -69,22 +69,20 @@ namespace MeetingManage.Controllers
         }
         [HttpPost]
         public IActionResult Create(MeetingsViewModel req)
-        {
-            string token = HttpContext.Request.Cookies["token"];
-            string userAccount = _tokenHelper.GetUser(token);
+        {   
             try
             {               
                 var result = MeetingCheck(req);             
                 if (result.Item1)
                 {                    
                     _ApplicationDB.Meetings.Add(new Meeting { 
-                        Account = userAccount,
+                        Account = _tokenHelper.GetUser(),
                         Applicant=req.Applicant,
-                        STime= req.Date + " " + req.STime,
-                        ETime= req.Date + " " + req.ETime,
-                        Remarks=req.Remarks, 
-                        Event   =req.Event,
-                        Room    =req.Room,
+                        STime   = req.Date + " " + req.STime,
+                        ETime   = req.Date + " " + req.ETime,
+                        Remarks = req.Remarks, 
+                        Event   = req.Event,
+                        Room    = req.Room,
                     });
                     _ApplicationDB.SaveChanges();
                     TempData["message"] = "新增成功";
@@ -98,7 +96,7 @@ namespace MeetingManage.Controllers
             catch (Exception ex)
             {
                 TempData["message"] = "異常新增錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting create fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting create fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, _tokenHelper.GetUser());
                 return View(req);
             }
             return RedirectToAction("List");
@@ -122,11 +120,9 @@ namespace MeetingManage.Controllers
                 return View(viewModel);
             }
             catch (Exception ex)
-            {
-                string token = HttpContext.Request.Cookies["token"];
-                string userAccount = _tokenHelper.GetUser(token);
+            {        
                 TempData["message"] = "錯誤請求";
-                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, _tokenHelper.GetUser());
                 return RedirectToAction("List");
             }  
                
@@ -164,7 +160,7 @@ namespace MeetingManage.Controllers
             catch (Exception ex)
             {
                 TempData["message"] = "異常編輯錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);
+                Console.WriteLine("{0} meeting edit fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, _tokenHelper.GetUser());
                 return View(req);
             }
             return RedirectToAction("List");        
@@ -180,11 +176,9 @@ namespace MeetingManage.Controllers
                     TempData["message"] = "刪除成功";
             }
             catch (Exception ex)
-            {
-                string token = HttpContext.Request.Cookies["token"];
-                string userAccount = _tokenHelper.GetUser(token);
+            {  
                 TempData["message"] = "異常刪除錯誤，請查閱系統紀錄";
-                Console.WriteLine("{0} meeting delete fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, userAccount);             
+                Console.WriteLine("{0} meeting delete fail: account_id:{2} edit fail:{1}", DateTime.Now, ex.Message, _tokenHelper.GetUser());             
             }
             return RedirectToAction("List");
         }
@@ -196,10 +190,9 @@ namespace MeetingManage.Controllers
         }
         private List<Meeting> GetMeeting(string SearchDate)
         {
-            List<Meeting> Meetings = _ApplicationDB.Meetings.Where(a => a.STime.Contains(SearchDate)).ToList();
-            string token = HttpContext.Request.Cookies["token"];
-            string userRole = _tokenHelper.GetUserRole(token);
-            string userAccount = _tokenHelper.GetUser(token);
+            List<Meeting> Meetings = _ApplicationDB.Meetings.Where(a => a.STime.Contains(SearchDate)).ToList();         
+            string userRole = _tokenHelper.GetUserRole();
+            string userAccount = _tokenHelper.GetUser();
             if (byte.TryParse(userRole, out byte Role))
             {
                 switch ((RoleType)Role)

@@ -4,19 +4,34 @@ namespace MeetingManage.Helpers
 {
     public class TokenHelpers
     {
-        public string GetUser(string token)
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContext;
+        public TokenHelpers()
         {
+        }
+        public TokenHelpers(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        {
+               _configuration = configuration;
+               _httpContext = httpContextAccessor;
+        }
+        public string GetUser(string token = null) 
+        {
+            if (token == null)
+                token = _httpContext.HttpContext.Request.Cookies["token"];
             var tokenHandler = new JwtSecurityTokenHandler();
             var Claims = tokenHandler.ReadJwtToken(token).Payload.Claims;
             var Rusult = Claims.FirstOrDefault(x => x.Type == "sub").Value;
             return Rusult;
         }
-        public string GetUserRole(string token)
+        public string GetUserRole(string token = null)
         {
+            if (token == null)
+                token = _httpContext.HttpContext.Request.Cookies["token"];
             var tokenHandler = new JwtSecurityTokenHandler();
             var Claims = tokenHandler.ReadJwtToken(token).Payload.Claims;
             var Rusult = Claims.FirstOrDefault(x => x.Type == "roles").Value;
             return Rusult;
         }
+
     }
 }

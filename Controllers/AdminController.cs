@@ -138,9 +138,8 @@ namespace MeetingManage.Controllers
         }
         private List<User> GetUsers()
         {
-            List<User> users = _ApplicationDB.Users.ToList();
-            string token = HttpContext.Request.Cookies["token"];
-            string userRole = _tokenHelper.GetUserRole(token);
+            List<User> users = _ApplicationDB.Users.ToList();       
+            string userRole = _tokenHelper.GetUserRole();
             if (byte.TryParse(userRole, out byte Role))
             {
                 switch ((RoleType)Role)
@@ -163,15 +162,13 @@ namespace MeetingManage.Controllers
 
         public List<RoleTypeSelect> GetRole()
         {
-            List<RoleType> roleTypes = Globals.ToList<RoleType>();
-            string token = HttpContext.Request.Cookies["token"];
-            string userRole = _tokenHelper.GetUserRole(token);
+            List<RoleType> roleTypes = Globals.ToList<RoleType>();       
+            string userRole = _tokenHelper.GetUserRole();
             if (byte.TryParse(userRole, out byte Role))
             {
                 if((RoleType)Role != RoleType.Admin)
                     roleTypes.Remove(RoleType.Admin);
-            }
-            
+            }            
             List<RoleTypeSelect> roles = new List<RoleTypeSelect> { };
             foreach(var x in roleTypes)
             {
