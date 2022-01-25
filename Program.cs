@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-#region 使整個網站預設都需要登入才能瀏覽(需安裝 Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation)
+#region 使網站可以儲存後重整不需重開偵錯(需安裝 Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation)
 builder.Services.AddMvc().AddRazorRuntimeCompilation();
 #endregion
 
